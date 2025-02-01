@@ -1,5 +1,5 @@
-const HEIGHT = 1024
-const WIDTH = 1024
+const HEIGHT = 512
+const WIDTH = 512
 const CELL_SIZE = 32
 const CELL_LIVE_COLOR = "lime"
 const TICK_TIME = 100
@@ -29,7 +29,7 @@ function flipStartButton() {
     startStopButton.innerText = started ? "Stop" : "Start"
 }
 
-let cells = [[]]
+let cells = []
 
 function drawCell(c) {
     canvasCtx.strokeStyle = "black"
@@ -43,10 +43,15 @@ function drawCells() {
 }
 
 function setup(random) {
-    for (let x = 0; x <= WIDTH / CELL_SIZE; x++) {
+    if (started)
+        flipStartButton()
+
+    cells = []
+
+    for (let x = 0; x < WIDTH / CELL_SIZE; x++) {
         const row = []
 
-        for (let y = 0; y <= HEIGHT / CELL_SIZE; y++)
+        for (let y = 0; y < HEIGHT / CELL_SIZE; y++)
             row.push({ x: x * CELL_SIZE, y: y * CELL_SIZE, live: random ? Math.random() > RANDOM_THRESHOLD : false })
 
         cells.push(row)
@@ -80,26 +85,36 @@ function liveNeighbors(x, y) {
 
 function tick() {
     if (started) {
+        const updatedCells = []
+
         cells.forEach((row, x) => {
+            const updatedRow = []
+
             row.forEach((cell, y) => {
+                let updatedCell = { ...cell }
                 const liveNeighborsCount = liveNeighbors(x, y)
 
                 // https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life#Rules
                 // Any live cell with fewer than two live neighbours dies, as if by underpopulation.
-                if (liveNeighborsCount < 2)
-                    cell.live = false
+                if (updatedCell.live && liveNeighborsCount < 2)
+                    updatedCell.live = false
                 // Any live cell with two or three live neighbours lives on to the next generation.
-                if (liveNeighborsCount === 2 || liveNeighborsCount === 3)
-                    cell.live = cell.live
+                if (updatedCell.live && liveNeighborsCount === 2 || liveNeighborsCount === 3)
+                    updatedCell.live = cell.live
                 // Any live cell with more than three live neighbours dies, as if by overpopulation.
-                if (liveNeighborsCount > 3)
-                    cell.live = false
+                if (updatedCell.live && liveNeighborsCount > 3)
+                    updatedCell.live = false
                 // Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-                if (liveNeighborsCount === 3 && !cell.live)
-                    cell.live = true
+                if (!updatedCell.live && liveNeighborsCount === 3 && !cell.live)
+                    updatedCell.live = true
+
+                updatedRow.push(updatedCell)
             })
+
+            updatedCells.push(updatedRow)
         })
 
+        cells = updatedCells
         drawCells()
     }
 
@@ -128,14 +143,11 @@ canvas.addEventListener("click", (event) => {
     cells.forEach(row => {
         row.forEach(cell => {
             if (x >= cell.x && x < cell.x + CELL_SIZE && y >= cell.y && y < cell.y + CELL_SIZE) {
-                console.log(cell)
                 cell.live = !cell.live
                 drawCells()
             }
         })
     })
-
-    console.log("Click", x, y)
 })
 
 drawCells()
