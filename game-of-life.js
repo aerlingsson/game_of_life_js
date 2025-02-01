@@ -3,7 +3,7 @@ const WIDTH = 512
 const CELL_SIZE = 32
 const CELL_LIVE_COLOR = "lime"
 const TICK_TIME = 100
-const RANDOM_THRESHOLD = 0.9
+const RANDOM_THRESHOLD = 0.85
 
 const BACKGROUND_COLOR = "#1e1f1e";
 
