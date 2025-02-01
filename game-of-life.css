@@ -15,12 +15,12 @@ canvas {
     align-self: center;
 }
 
-.start {
+.button {
     background: darkslategray;
     font-size: 2rem;
     font-weight: 700;
     border-radius: 0.5rem;
     border: none;
     padding: 0.5rem 1rem;
-    margin: 1rem;
+    margin: 1rem 0rem 0rem 0rem;
 }

@@ -11,21 +11,20 @@ document.body.style.backgroundColor = BACKGROUND_COLOR
 if ((HEIGHT % CELL_SIZE) != 0 || (WIDTH % CELL_SIZE) != 0)
     alert("Canvas size and cell size not divisible")
 
+let started = false;
+const startStopButton = document.getElementById("startButton")
+
+function flipStartButton() {
+    started = !started
+    startStopButton.innerText = started ? "Stop" : "Start"
+}
+
 const canvas = document.getElementById("canvas")
 const ctx = canvas.getContext("2d")
 ctx.canvas.height = HEIGHT
 ctx.canvas.width = WIDTH
 
 let cells = [[]]
-
-for (let x = 0; x <= WIDTH / CELL_SIZE; x++) {
-    const row = []
-
-    for (let y = 0; y <= HEIGHT / CELL_SIZE; y++)
-        row.push({ x: x * CELL_SIZE, y: y * CELL_SIZE, live: Math.random() > 0.90 })
-
-    cells.push(row)
-}
 
 function drawCell(c) {
     ctx.strokeStyle = "black"
@@ -36,6 +35,19 @@ function drawCell(c) {
 
 function drawCells() {
     cells.forEach(row => row.forEach(drawCell))
+}
+
+function setup() {
+    for (let x = 0; x <= WIDTH / CELL_SIZE; x++) {
+        const row = []
+
+        for (let y = 0; y <= HEIGHT / CELL_SIZE; y++)
+            row.push({ x: x * CELL_SIZE, y: y * CELL_SIZE, live: Math.random() > 0.90 })
+
+        cells.push(row)
+    }
+
+    drawCells()
 }
 
 function liveNeighbors(x, y) {
@@ -61,8 +73,13 @@ function liveNeighbors(x, y) {
     return neighbors.filter((n) => n.live).length
 }
 
-let started = false;
-document.getElementById("startButton").addEventListener("click", () => started = true)
+startStopButton.addEventListener("click", flipStartButton)
+
+document.getElementById("resetButton").addEventListener("click", () => {
+    if (started)
+        flipStartButton()
+    setup()
+})
 
 function tick() {
     if (started) {
@@ -88,6 +105,7 @@ function tick() {
 }
 
 console.log("Init...")
+setup()
 drawCells()
 console.log("Done")
 tick()
