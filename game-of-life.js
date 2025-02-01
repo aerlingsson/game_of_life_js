@@ -1,7 +1,8 @@
-const HEIGHT = 512
-const WIDTH = 512
+const HEIGHT = 1024
+const WIDTH = 1024
 const CELL_SIZE = 32
 const CELL_LIVE_COLOR = "lime"
+const TICK_TIME = 100
 
 const BACKGROUND_COLOR = "#1e1f1e";
 
@@ -21,7 +22,7 @@ for (let x = 0; x <= WIDTH / CELL_SIZE; x++) {
     const row = []
 
     for (let y = 0; y <= HEIGHT / CELL_SIZE; y++)
-        row.push({ x: x * CELL_SIZE, y: y * CELL_SIZE, live: Math.random() > 0.85 })
+        row.push({ x: x * CELL_SIZE, y: y * CELL_SIZE, live: Math.random() > 0.90 })
 
     cells.push(row)
 }
@@ -46,51 +47,47 @@ function liveNeighbors(x, y) {
         }
     }
 
-    const upLeft = existsOrNull(x - 1, y - 1)
-    const up = existsOrNull(x, y - 1)
-    const upRight = existsOrNull(x + 1, y - 1)
-    const left = existsOrNull(x - 1, y)
-    const right = existsOrNull(x + 1, y)
-    const downLeft = existsOrNull(x - 1, y + 1)
-    const down = existsOrNull(x, y + 1)
-    const downRight = existsOrNull(x + 1, y + 1)
-
     const neighbors = [
-        upLeft,
-        up,
-        upRight,
-        left,
-        right,
-        downLeft,
-        down,
-        downRight
+        existsOrNull(x - 1, y - 1), // up left
+        existsOrNull(x, y - 1),     // up
+        existsOrNull(x + 1, y - 1), // up right
+        existsOrNull(x - 1, y),     // left
+        existsOrNull(x + 1, y),     // right
+        existsOrNull(x - 1, y + 1), // down left
+        existsOrNull(x, y + 1),     // down
+        existsOrNull(x + 1, y + 1)  // down right
     ].filter(n => n !== null)
 
     return neighbors.filter((n) => n.live).length
 }
 
+let started = false;
+document.getElementById("startButton").addEventListener("click", () => started = true)
+
 function tick() {
-    cells.forEach((row, x) => {
-        row.forEach((cell, y) => {
-            const liveNeighborsCount = liveNeighbors(x, y)
+    if (started) {
+        cells.forEach((row, x) => {
+            row.forEach((cell, y) => {
+                const liveNeighborsCount = liveNeighbors(x, y)
 
-            if (liveNeighborsCount < 2)
-                cell.live = false
-            if (liveNeighborsCount === 2 || liveNeighborsCount === 3)
-                cell.live = cell.live
-            if (liveNeighborsCount > 3)
-                cell.live = false
-            if (liveNeighborsCount === 3 && !cell.live)
-                cell.live = true
+                if (liveNeighborsCount < 2)
+                    cell.live = false
+                if (liveNeighborsCount === 2 || liveNeighborsCount === 3)
+                    cell.live = cell.live
+                if (liveNeighborsCount > 3)
+                    cell.live = false
+                if (liveNeighborsCount === 3 && !cell.live)
+                    cell.live = true
+            })
         })
-    })
 
-    drawCells()
-    setTimeout(tick, 100)
+        drawCells()
+    }
+
+    setTimeout(tick, TICK_TIME)
 }
 
 console.log("Init...")
 drawCells()
 console.log("Done")
 tick()
-
